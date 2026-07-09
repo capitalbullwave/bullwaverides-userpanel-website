@@ -39,6 +39,7 @@ export function DownloadAppMenu({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [menuPosition, setMenuPosition] = useState<{
     top: number;
     left: number;
@@ -51,12 +52,15 @@ export function DownloadAppMenu({
     }
 
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
       if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        (containerRef.current && containerRef.current.contains(target)) ||
+        (menuRef.current && menuRef.current.contains(target))
       ) {
-        setOpen(false);
+        return;
       }
+
+      setOpen(false);
     };
 
     const handleEscape = (event: KeyboardEvent) => {
@@ -141,6 +145,7 @@ export function DownloadAppMenu({
 
     return createPortal(
       <div
+        ref={menuRef}
         role="menu"
         className="fixed z-[100] overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg"
         style={{
