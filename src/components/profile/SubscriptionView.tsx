@@ -116,7 +116,7 @@ export function SubscriptionView() {
               <Crown className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-heading text-lg font-bold">Fast Bull Membership</h2>
+              <h2 className="font-heading text-lg font-bold">Bull Wave rides Membership</h2>
               <p className="text-sm text-white/80">Ride smarter with exclusive perks</p>
               <p className="mt-3 text-sm font-semibold">
                 Current plan: {activePlan?.name ?? "Free"}

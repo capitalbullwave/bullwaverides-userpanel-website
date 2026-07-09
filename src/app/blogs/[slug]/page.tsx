@@ -18,11 +18,11 @@ export async function generateMetadata({
   const post = getBlogPost(slug);
 
   if (!post) {
-    return { title: "Blog | Fast Bull" };
+    return { title: "Blog | Bull Wave rides" };
   }
 
   return {
-    title: `${post.title} | Fast Bull Blog`,
+    title: `${post.title} | Bull Wave rides Blog`,
     description: post.excerpt,
   };
 }
