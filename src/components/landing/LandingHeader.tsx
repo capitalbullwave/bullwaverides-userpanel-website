@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { DownloadAppMenu } from "@/components/landing/DownloadAppMenu";
 import { WaveGoLogo } from "@/components/layout/WaveGoLogo";
 import { ROUTES } from "@/constants/routes";
 import { landingNavLinks } from "@/constants/services";
@@ -112,12 +113,7 @@ export function LandingHeader() {
           >
             Sign in
           </Button>
-          <Button
-            className="rounded-lg px-5 font-semibold"
-            onClick={() => router.push(ROUTES.login)}
-          >
-            Download App
-          </Button>
+          <DownloadAppMenu />
         </div>
 
         <button
@@ -146,7 +142,11 @@ export function LandingHeader() {
             <Button variant="outline" onClick={() => router.push(ROUTES.login)}>
               Sign in
             </Button>
-            <Button onClick={() => router.push(ROUTES.login)}>Download App</Button>
+            <DownloadAppMenu
+              className="w-full"
+              buttonClassName="w-full"
+              align="left"
+            />
           </div>
         </div>
       )}

@@ -1,4 +1,5 @@
 # - /images/fast-bull-logo.png (transparent Fast Bull logo)
+# - /images/bw-rides-logo.png (BW RIDES logo)
 # Referenced paths:
 # - /images/hero_vehicles.png
 # - /images/services/bike.png, auto.png, car.png, parcel.png, travel.png, ambulance.png

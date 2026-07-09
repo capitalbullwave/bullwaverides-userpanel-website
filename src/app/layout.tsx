@@ -3,8 +3,8 @@ import { inter, playwriteEnglandJoined } from "@/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Fast Bull - Move Smarter. Travel Better.",
-  description: "Fast Bull is a premium ride-booking web application.",
+  title: "Bull-wave-rides",
+  description: "Bull-wave-rides is a premium ride-booking web application.",
 };
 
 export default function RootLayout({
