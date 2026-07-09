@@ -12,6 +12,11 @@ const PUBLIC_PATHS = new Set<string>([
   ROUTES.terms,
   ROUTES.privacy,
   ROUTES.safety,
+  "/robots.txt",
+  "/sitemap.xml",
+  "/opengraph-image",
+  "/twitter-image",
+  "/icon",
 ]);
 
 function isPublicPath(pathname: string) {
@@ -56,6 +61,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|opengraph-image|twitter-image|icon|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
