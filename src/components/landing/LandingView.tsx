@@ -5,7 +5,6 @@ import Link from "next/link";
 import { LandingHeroSlider } from "@/components/landing/LandingHeroSlider";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowRight,
   MapPin,
   Navigation2,
 } from "lucide-react";
@@ -286,7 +285,7 @@ export function LandingView() {
           <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
             <div className="flex flex-col gap-5 text-white">
               <p className="inline-flex w-fit rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-secondary">
-                Drive with Bull Wave rides
+                Drive with Bull Wave Rides
               </p>
               <h2 className="font-heading text-3xl font-bold leading-tight sm:text-4xl">
                 Earn on your terms.
@@ -324,7 +323,7 @@ export function LandingView() {
               <div className="relative aspect-[5/4] overflow-hidden rounded-2xl shadow-2xl ring-2 ring-white/15">
                 <Image
                   src={landingCaptainImage}
-                  alt="Bull Wave rides captain partner"
+                  alt="Bull Wave Rides captain partner"
                   fill
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 40vw"
@@ -350,7 +349,7 @@ export function LandingView() {
                   Download
                 </p>
                 <h2 className="mt-2 font-heading text-2xl font-bold sm:text-3xl">
-                  Get the Bull Wave rides app
+                  Get the Bull Wave Rides app
                 </h2>
                 <p className="mt-3 max-w-md text-sm leading-relaxed text-white/80 sm:text-base">
                   Book rides, track trips, send parcels, and access emergency SOS — everything
@@ -398,7 +397,7 @@ export function LandingView() {
                     Services
                   </Link>
                   <Link href="#why-wavego" className="transition-colors hover:text-primary">
-                    Why Bull Wave rides
+                    Why Bull Wave Rides
                   </Link>
                   <Link href="#captains" className="transition-colors hover:text-primary">
                     Become a captain
@@ -412,10 +411,16 @@ export function LandingView() {
               <div>
                 <p className="mb-4 text-sm font-bold text-foreground">Support</p>
                 <nav className="flex flex-col gap-3 text-sm text-muted-foreground">
-                  <Link href={ROUTES.profileHelp} className="transition-colors hover:text-primary">
+                  <Link
+                    href={getProtectedPath(ROUTES.profileHelp)}
+                    className="transition-colors hover:text-primary"
+                  >
                     Help center
                   </Link>
-                  <Link href={ROUTES.ambulance} className="transition-colors hover:text-primary">
+                  <Link
+                    href={getProtectedPath(ROUTES.ambulance)}
+                    className="transition-colors hover:text-primary"
+                  >
                     Ambulance SOS
                   </Link>
                   <Link href={ROUTES.about} className="transition-colors hover:text-primary">
@@ -436,12 +441,15 @@ export function LandingView() {
                   <Link href={ROUTES.privacy} className="transition-colors hover:text-primary">
                     Privacy policy
                   </Link>
+                  <Link href={ROUTES.safety} className="transition-colors hover:text-primary">
+                    Safety policy
+                  </Link>
                 </nav>
               </div>
             </div>
 
             <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-sm text-muted-foreground sm:flex-row">
-              <p>© 2026 Bull Wave rides Technologies. All rights reserved.</p>
+              <p>© 2026 Bull Wave Rides Technologies. All rights reserved.</p>
               <p className="text-xs">Made for riders, captains &amp; cities across India.</p>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { AnimateIn, Stagger, StaggerItem } from "@/components/motion";
 import { buttonVariants } from "@/components/ui/button";
 import { landingFaqItems } from "@/constants/landing-faq";
 import { ROUTES } from "@/constants/routes";
+import { getProtectedPath } from "@/lib/auth-session";
 import { cn } from "@/lib/utils";
 
 export function LandingFaqSection() {
@@ -36,12 +37,12 @@ export function LandingFaqSection() {
           </h2>
           <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
             Everything you need to know about booking rides, parcels, ambulance SOS,
-            payments, and driving with Bull Wave rides.
+            payments, and driving with Bull Wave Rides.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link
-              href={ROUTES.profileHelp}
+              href={getProtectedPath(ROUTES.profileHelp)}
               className={cn(
                 buttonVariants(),
                 "h-11 rounded-xl px-6 font-semibold shadow-sm shadow-primary/10"
@@ -148,7 +149,10 @@ export function LandingFaqSection() {
           </span>
           <p className="text-sm leading-relaxed text-muted-foreground">
             Need more help?{" "}
-            <Link href={ROUTES.profileHelp} className="font-semibold text-primary hover:underline">
+            <Link
+              href={getProtectedPath(ROUTES.profileHelp)}
+              className="font-semibold text-primary hover:underline"
+            >
               Visit Help center
             </Link>
           </p>

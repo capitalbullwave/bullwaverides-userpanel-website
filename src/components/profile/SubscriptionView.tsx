@@ -9,17 +9,26 @@ import {
   createSubscriptionCheckout,
   getUserSubscription,
   listSubscriptionPlans,
-  type MembershipPlan,
   selectSubscriptionPlan,
   verifySubscriptionPayment,
 } from "@/lib/membership-api";
 import { cacheActiveMembershipPlan } from "@/lib/membership-sync";
-import { openSubscriptionCheckout } from "@/lib/razorpay-checkout";
+import { openSubscriptionCheckout } from "@/lib/cashfree-checkout";
 import { cn } from "@/lib/utils";
+
+interface Plan {
+  id: string;
+  slug: string;
+  name: string;
+  price_inr: number;
+  ride_discount_percent: number;
+  benefits: string[];
+  is_popular?: boolean;
+}
 
 export function SubscriptionView() {
   const router = useRouter();
-  const [plans, setPlans] = useState<MembershipPlan[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [activeSlug, setActiveSlug] = useState("free");
   const [loading, setLoading] = useState(true);
   const [selectingSlug, setSelectingSlug] = useState<string | null>(null);
@@ -33,7 +42,13 @@ export function SubscriptionView() {
         listSubscriptionPlans(),
         getUserSubscription(),
       ]);
-      setPlans(plansRes.plans);
+      setPlans(
+        (plansRes.plans as Plan[]).map((p) => ({
+          ...p,
+          price_inr: Number((p as { price_inr?: number; price?: number }).price_inr ?? (p as { price?: number }).price ?? 0),
+          benefits: Array.isArray(p.benefits) ? p.benefits : [],
+        }))
+      );
       const slug = (subRes.subscription?.plan as { slug?: string })?.slug ?? "free";
       setActiveSlug(slug);
     } catch (err) {
@@ -116,7 +131,7 @@ export function SubscriptionView() {
               <Crown className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-heading text-lg font-bold">Bull Wave rides Membership</h2>
+              <h2 className="font-heading text-lg font-bold">Bull Wave Rides Membership</h2>
               <p className="text-sm text-white/80">Ride smarter with exclusive perks</p>
               <p className="mt-3 text-sm font-semibold">
                 Current plan: {activePlan?.name ?? "Free"}

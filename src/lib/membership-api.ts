@@ -13,7 +13,7 @@ export interface StudentPassApplication {
 }
 
 export function getStudentPass(): Promise<{ application: StudentPassApplication | null }> {
-  return authFetch("/user/student-pass");
+  return authFetch("/student-pass");
 }
 
 export function submitStudentPass(payload: {
@@ -22,46 +22,19 @@ export function submitStudentPass(payload: {
   aadhar_photo: string;
   student_id_photo: string;
 }) {
-  return authFetch<{ application: StudentPassApplication; message: string }>("/user/student-pass", {
+  return authFetch<{ application: StudentPassApplication; message: string }>("/student-pass", {
     method: "POST",
     body: JSON.stringify(payload),
   });
 }
 
-export interface MembershipPlan {
-  id: string;
-  slug: string;
-  name: string;
-  price_inr: number;
-  ride_discount_percent: number;
-  benefits: string[];
-  is_popular?: boolean;
-}
-
-function normalizeMembershipPlan(raw: Record<string, unknown>): MembershipPlan {
-  return {
-    id: String(raw.id ?? ""),
-    slug: String(raw.slug ?? ""),
-    name: String(raw.name ?? ""),
-    price_inr: Number(raw.price_inr ?? raw.price ?? 0),
-    ride_discount_percent: Number(raw.ride_discount_percent ?? 0),
-    benefits: Array.isArray(raw.benefits)
-      ? raw.benefits.filter((b): b is string => typeof b === "string")
-      : [],
-    is_popular: raw.is_popular === true,
-  };
-}
-
-export async function listSubscriptionPlans() {
-  const res = await authFetch<{ plans: Array<Record<string, unknown>> }>(
-    "/user/subscription-plans"
-  );
-  return { plans: res.plans.map(normalizeMembershipPlan) };
+export function listSubscriptionPlans() {
+  return authFetch<{ plans: Array<Record<string, unknown>> }>("/subscription-plans");
 }
 
 export function getUserSubscription() {
   return authFetch<{ subscription: { plan: Record<string, unknown>; status: string } }>(
-    "/user/subscription"
+    "/subscription"
   );
 }
 
@@ -77,7 +50,7 @@ export function selectSubscriptionPlan(planSlug: string) {
       status: string;
     };
     message: string;
-  }>("/user/subscription", {
+  }>("/subscription", {
     method: "POST",
     body: JSON.stringify({ plan_slug: planSlug }),
   });
@@ -85,15 +58,16 @@ export function selectSubscriptionPlan(planSlug: string) {
 
 export interface SubscriptionCheckout {
   order_id: string;
+  payment_session_id: string;
+  environment?: string;
   amount: number;
   currency: string;
-  key_id: string;
   plan: { slug: string; name: string };
   prefill?: { name?: string; email?: string; contact?: string };
 }
 
 export function createSubscriptionCheckout(planSlug: string) {
-  return authFetch<{ checkout: SubscriptionCheckout }>("/user/subscription/checkout", {
+  return authFetch<{ checkout: SubscriptionCheckout }>("/subscription/checkout", {
     method: "POST",
     body: JSON.stringify({ plan_slug: planSlug }),
   });
@@ -101,9 +75,7 @@ export function createSubscriptionCheckout(planSlug: string) {
 
 export function verifySubscriptionPayment(payload: {
   plan_slug: string;
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
+  order_id: string;
 }) {
   return authFetch<{
     subscription: {
@@ -116,7 +88,7 @@ export function verifySubscriptionPayment(payload: {
       status: string;
     };
     message: string;
-  }>("/user/subscription/verify-payment", {
+  }>("/subscription/verify-payment", {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -131,7 +103,37 @@ async function fileToDataUrl(file: File): Promise<string> {
   });
 }
 
+async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<string> {
+  const dataUrl = await fileToDataUrl(file);
+  if (typeof window === "undefined") return dataUrl;
+
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const scale = Math.min(1, maxDim / Math.max(image.width, image.height));
+      const width = Math.max(1, Math.round(image.width * scale));
+      const height = Math.max(1, Math.round(image.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(dataUrl);
+        return;
+      }
+      ctx.drawImage(image, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+    image.onerror = () => reject(new Error("Unable to process image"));
+    image.src = dataUrl;
+  });
+}
+
 export async function fileToUploadDataUrl(file: File | null) {
   if (!file) return null;
-  return fileToDataUrl(file);
+  try {
+    return await compressImage(file);
+  } catch {
+    return fileToDataUrl(file);
+  }
 }

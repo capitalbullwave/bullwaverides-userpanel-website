@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MetaPixel } from "@/components/analytics/MetaPixel";
+import { BackendWarmup } from "@/components/BackendWarmup";
 import { inter, playwriteEnglandJoined } from "@/lib/fonts";
 import "./globals.css";
 
@@ -91,7 +91,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <MetaPixel />
+        <BackendWarmup />
         {children}
       </body>
     </html>

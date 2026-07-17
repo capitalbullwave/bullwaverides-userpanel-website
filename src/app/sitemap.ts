@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { blogPosts } from "@/data/blogs";
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000")
   .trim()
@@ -11,11 +12,8 @@ function url(path: string) {
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  // Keep this list focused on public, marketing-style pages.
-  // App/auth/account flows are intentionally excluded via robots rules.
   const staticRoutes = [
     "/",
-    "/home",
     "/about",
     "/blogs",
     "/safety",
@@ -24,11 +22,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/legal/safety",
   ];
 
-  return staticRoutes.map((path) => ({
+  const blogRoutes = blogPosts.map((post) => `/blogs/${post.slug}`);
+
+  return [...staticRoutes, ...blogRoutes].map((path) => ({
     url: url(path),
     lastModified: now,
-    changeFrequency: "weekly",
-    priority: path === "/" ? 1 : 0.7,
+    changeFrequency: path.startsWith("/blogs/") ? "monthly" : "weekly",
+    priority: path === "/" ? 1 : path.startsWith("/blogs/") ? 0.6 : 0.7,
   }));
 }
-

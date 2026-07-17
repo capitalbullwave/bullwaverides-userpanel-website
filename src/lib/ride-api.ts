@@ -9,6 +9,11 @@ export interface Ride {
   fare_final: number | null;
   cancelled_reason?: string | null;
   created_at: string;
+  prefer_women_riders?: boolean;
+  allow_all_riders?: boolean;
+  women_riders_available?: boolean;
+  requires_rider_preference_choice?: boolean;
+  message?: string;
 }
 
 interface BackendRide {
@@ -22,6 +27,11 @@ interface BackendRide {
   fare_final?: number | null;
   cancellation_reason?: string | null;
   created_at: string;
+  prefer_women_riders?: boolean;
+  allow_all_riders?: boolean;
+  women_riders_available?: boolean;
+  requires_rider_preference_choice?: boolean;
+  message?: string;
 }
 
 interface RideHistoryBackend {
@@ -43,6 +53,11 @@ function mapRide(ride: BackendRide): Ride {
     fare_final: ride.fare_final ?? ride.final_fare ?? null,
     cancelled_reason: ride.cancellation_reason ?? null,
     created_at: ride.created_at,
+    prefer_women_riders: ride.prefer_women_riders,
+    allow_all_riders: ride.allow_all_riders,
+    women_riders_available: ride.women_riders_available,
+    requires_rider_preference_choice: ride.requires_rider_preference_choice,
+    message: ride.message,
   };
 }
 
@@ -107,6 +122,8 @@ export async function estimateRideFares(payload: {
   pickup_lng: number;
   dropoff_lat: number;
   dropoff_lng: number;
+  distance_km?: number;
+  duration_min?: number;
 }): Promise<{
   discount_percent: number | null;
   quotes: Record<string, VehicleFareQuote>;
@@ -125,7 +142,7 @@ export async function estimateRideFares(payload: {
 
   const quotes: Record<string, VehicleFareQuote> = {};
   for (const item of res.vehicle_types ?? []) {
-    quotes[item.vehicle_type_id] = item;
+    quotes[item.vehicle_type_id.toLowerCase()] = item;
   }
 
   return {
@@ -167,11 +184,21 @@ export function bookRide(payload: {
   pickup_address: string;
   dropoff_address: string;
   vehicle_category_id?: string;
+  women_safety_enabled?: boolean;
+  prefer_women_riders?: boolean;
 }): Promise<Ride> {
   return authFetch<BackendRide>(
     "/book-ride",
     { method: "POST", body: JSON.stringify(payload) },
     "Unable to book ride"
+  ).then(mapRide);
+}
+
+export function continueWithAllRiders(rideId: string): Promise<Ride> {
+  return authFetch<BackendRide>(
+    "/continue-with-all-riders",
+    { method: "POST", body: JSON.stringify({ ride_id: rideId }) },
+    "Unable to continue ride search"
   ).then(mapRide);
 }
 

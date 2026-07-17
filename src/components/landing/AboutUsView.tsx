@@ -3,32 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { AnimateIn } from "@/components/motion";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import { landingCaptainImage, landingHeroSlides } from "@/constants/services";
-import { cn } from "@/lib/utils";
-
-const founders = [
-  {
-    name: "Rohit Jaiswal",
-    role: "Co-founder",
-    initials: "RJ",
-    image: "/images/about/rohit-jaiswakl.png",
-  },
-  { name: "Priya Sharma", role: "Co-founder", initials: "PS" },
-  { name: "Rahul Kapoor", role: "Co-founder", initials: "RK" },
-] as const;
-
-const footerExploreLinks = [
-  { label: "Home", href: ROUTES.landing },
-  { label: "About Us", href: ROUTES.about },
-  { label: "Become a captain", href: `${ROUTES.landing}#captains` },
-  { label: "Ambulance SOS", href: ROUTES.ambulance },
-  { label: "Help center", href: ROUTES.profileHelp },
-] as const;
+import { getProtectedPath } from "@/lib/auth-session";
 
 const footerLegalLinks = [
   { label: "Terms of service", href: ROUTES.terms },
@@ -78,52 +58,6 @@ function SocialIcon({ icon }: { icon: (typeof socialLinks)[number]["icon"] }) {
   );
 }
 
-function FounderCard({
-  name,
-  role,
-  initials,
-  image,
-}: {
-  name: string;
-  role: string;
-  initials: string;
-  image?: string;
-}) {
-  const [imageError, setImageError] = useState(false);
-  const showImage = Boolean(image) && !imageError;
-
-  return (
-    <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
-      <div className="relative">
-        <span className="absolute -left-2 -top-2 h-16 w-16 rounded-2xl bg-secondary/60 sm:h-20 sm:w-20" />
-        <div
-          className={cn(
-            "relative flex h-36 w-36 items-center justify-center overflow-hidden",
-            "rounded-[2rem] rounded-tr-[4rem] bg-primary/10 sm:h-44 sm:w-44"
-          )}
-        >
-          {showImage ? (
-            <Image
-              src={image!}
-              alt={name}
-              fill
-              className="object-cover object-top"
-              sizes="(max-width: 640px) 144px, 176px"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <span className="font-heading text-3xl font-bold text-primary sm:text-4xl">
-              {initials}
-            </span>
-          )}
-        </div>
-      </div>
-      <p className="mt-5 font-heading text-lg font-bold text-foreground">{name}</p>
-      <p className="mt-0.5 text-sm text-muted-foreground">{role}</p>
-    </div>
-  );
-}
-
 function StoreBadge({ label }: { label: string }) {
   return (
     <div className="rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-[11px] font-semibold leading-tight text-white/90">
@@ -159,7 +93,7 @@ export function AboutUsView() {
                   We are not an option, we are a choice
                 </h2>
                 <p className="mt-3 max-w-lg text-base leading-relaxed text-muted-foreground">
-                  Millions of riders choose Bull Wave rides because we solve everyday intra-city travel —
+                  Millions of riders choose Bull Wave Rides because we solve everyday intra-city travel —
                   with assured safety, transparent pricing, and rides that fit every need from
                   bike-taxi to emergency ambulance.
                 </p>
@@ -171,7 +105,7 @@ export function AboutUsView() {
                 </h2>
                 <p className="mt-3 max-w-lg text-base leading-relaxed text-muted-foreground">
                   Our captains navigate peak-hour traffic so you reach faster. Parcels get delivered
-                  securely. And when every second counts, Bull Wave rides ambulance is there — one app for
+                  securely. And when every second counts, Bull Wave Rides ambulance is there — one app for
                   every journey.
                 </p>
               </div>
@@ -184,7 +118,7 @@ export function AboutUsView() {
             <div className="absolute bottom-6 left-0 h-44 w-44 overflow-hidden rounded-full border-4 border-background shadow-xl sm:h-52 sm:w-52">
               <Image
                 src={landingHeroSlides[0].src}
-                alt="Bull Wave rides rider on a bike taxi"
+                alt="Bull Wave Rides rider on a bike taxi"
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 176px, 208px"
@@ -193,7 +127,7 @@ export function AboutUsView() {
             <div className="absolute right-0 top-8 h-[78%] w-[52%] overflow-hidden rounded-[999px] border-4 border-background shadow-2xl">
               <Image
                 src={landingCaptainImage}
-                alt="Bull Wave rides captain with the app"
+                alt="Bull Wave Rides captain with the app"
                 fill
                 className="object-cover object-top"
                 sizes="(max-width: 1024px) 50vw, 320px"
@@ -204,41 +138,11 @@ export function AboutUsView() {
         </AnimateIn>
       </section>
 
-      {/* Champions / founders */}
-      <section className="relative overflow-hidden bg-background px-6 py-16 md:py-24">
-        <AnimateIn delay={0.06}>
-        <div className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-secondary/30" />
-
-        <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-center lg:gap-16">
-          <div>
-            <h2 className="font-heading text-3xl font-bold leading-tight text-foreground sm:text-4xl lg:text-[2.75rem]">
-              <span className="relative inline-block">
-                Champions
-                <span className="absolute -bottom-1 left-0 h-0.5 w-full bg-secondary" />
-              </span>{" "}
-              of our success story
-            </h2>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
-              Bull Wave rides has come a long way since our founding. With hard work and perseverance we
-              have earned the trust of riders and captains across India. As a brand and as a
-              service, we constantly reinvent ourselves to move cities forward.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-3 sm:gap-6">
-            {founders.map((founder) => (
-              <FounderCard key={founder.name} {...founder} />
-            ))}
-          </div>
-        </div>
-        </AnimateIn>
-      </section>
-
       {/* Careers hero */}
       <section className="relative min-h-[420px] overflow-hidden md:min-h-[480px]">
         <Image
           src={landingHeroSlides[3].src}
-          alt="Bull Wave rides team"
+          alt="Bull Wave Rides team"
           fill
           className="object-cover"
           sizes="100vw"
@@ -248,7 +152,7 @@ export function AboutUsView() {
 
         <AnimateIn delay={0.1} className="relative flex min-h-[420px] flex-col items-center justify-center px-6 py-20 text-center md:min-h-[480px]">
           <h2 className="font-heading text-4xl font-bold text-white sm:text-5xl md:text-6xl">
-            Jobs @ Bull Wave rides
+            Jobs @ Bull Wave Rides
           </h2>
           <p className="mt-4 max-w-xl text-base text-white/85 sm:text-lg">
             Join us in exploring a world of endless opportunities. Let&apos;s find a spot for you.
@@ -282,7 +186,15 @@ export function AboutUsView() {
 
             <div>
               <nav className="flex flex-col gap-3 text-sm text-white/75">
-                {footerExploreLinks.map((link) => (
+                {(
+                  [
+                    { label: "Home", href: ROUTES.landing },
+                    { label: "About Us", href: ROUTES.about },
+                    { label: "Become a captain", href: `${ROUTES.landing}#captains` },
+                    { label: "Ambulance SOS", href: getProtectedPath(ROUTES.ambulance) },
+                    { label: "Help center", href: getProtectedPath(ROUTES.profileHelp) },
+                  ] as const
+                ).map((link) => (
                   <Link
                     key={link.label}
                     href={link.href}
@@ -326,7 +238,7 @@ export function AboutUsView() {
           </div>
 
           <p className="mt-12 border-t border-white/10 pt-8 text-center text-sm text-white/50">
-            © 2026 Bull Wave rides Technologies. All rights reserved.
+            © 2026 Bull Wave Rides Technologies. All rights reserved.
           </p>
         </div>
       </footer>

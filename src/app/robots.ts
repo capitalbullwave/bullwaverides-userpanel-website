@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
           "/otp",
           "/start",
           "/create-profile",
+          "/home",
           "/notifications",
           "/wallet",
           "/activity",
@@ -32,4 +33,3 @@ export default function robots(): MetadataRoute.Robots {
     host: siteUrl,
   };
 }
-

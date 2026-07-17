@@ -14,12 +14,12 @@
 
 # production
 /build
+/dist
 
-# misc
-.DS_Store
-*.pem
+# env / secrets
 .env
 .env.*
+!.env.example
 
 # debug
 npm-debug.log*
@@ -31,5 +31,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# vercel
+# vercel / misc
 .vercel
+.DS_Store
+*.pem
+Thumbs.db
