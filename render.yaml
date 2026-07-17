@@ -1,0 +1,18 @@
+# Deploy as a Web Service (not Static Site).
+# Build settings if configuring manually in the dashboard:
+#   Build Command:  npm ci && npm run build
+#   Start Command:  npm start
+#   Publish/Output Directory: out   (or leave blank on Web Service)
+services:
+  - type: web
+    name: bullwaverides-userpanel
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production

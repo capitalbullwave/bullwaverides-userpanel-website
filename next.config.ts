@@ -9,6 +9,8 @@ const backendUrl =
   (process.env.NODE_ENV === "production" ? STAGING_BACKEND_URL : LOCAL_BACKEND_URL);
 
 const nextConfig: NextConfig = {
+  // Hosts often look for `out` after build; keep Node server via `next start`.
+  distDir: "out",
   async rewrites() {
     return [
       {
