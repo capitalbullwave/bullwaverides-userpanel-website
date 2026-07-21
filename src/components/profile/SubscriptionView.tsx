@@ -9,7 +9,6 @@ import {
   createSubscriptionCheckout,
   getUserSubscription,
   listSubscriptionPlans,
-  type MembershipPlan,
   selectSubscriptionPlan,
   verifySubscriptionPayment,
 } from "@/lib/membership-api";
@@ -17,9 +16,19 @@ import { cacheActiveMembershipPlan } from "@/lib/membership-sync";
 import { openSubscriptionCheckout } from "@/lib/cashfree-checkout";
 import { cn } from "@/lib/utils";
 
+interface Plan {
+  id: string;
+  slug: string;
+  name: string;
+  price_inr: number;
+  ride_discount_percent: number;
+  benefits: string[];
+  is_popular?: boolean;
+}
+
 export function SubscriptionView() {
   const router = useRouter();
-  const [plans, setPlans] = useState<MembershipPlan[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [activeSlug, setActiveSlug] = useState("free");
   const [loading, setLoading] = useState(true);
   const [selectingSlug, setSelectingSlug] = useState<string | null>(null);
@@ -33,9 +42,18 @@ export function SubscriptionView() {
         listSubscriptionPlans(),
         getUserSubscription(),
       ]);
-      setPlans(plansRes.plans);
-      const slug =
-        (subRes.subscription?.plan as { slug?: string } | undefined)?.slug ?? "free";
+      setPlans(
+        plansRes.plans.map((p) => ({
+          id: String(p.id ?? p.slug ?? ""),
+          slug: String(p.slug ?? ""),
+          name: String(p.name ?? ""),
+          price_inr: Number(p.price_inr ?? p.price ?? 0),
+          ride_discount_percent: Number(p.ride_discount_percent ?? 0),
+          benefits: Array.isArray(p.benefits) ? (p.benefits as string[]) : [],
+          is_popular: Boolean(p.is_popular),
+        }))
+      );
+      const slug = String(subRes.subscription?.plan?.slug ?? "free");
       setActiveSlug(slug);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load plans");

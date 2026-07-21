@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BackendWarmup } from "@/components/BackendWarmup";
+import { FloatingChatWidget } from "@/components/chat/FloatingChatWidget";
 import { inter, playwriteEnglandJoined } from "@/lib/fonts";
 import "./globals.css";
 
@@ -16,6 +17,16 @@ export const metadata: Metadata = {
   description:
     "Bullwave Rides is a premium ride-booking web application for fast, reliable, and safe rides.",
   applicationName: "Bullwave Rides",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "48x48" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.ico",
+  },
   alternates: {
     canonical: "/",
   },
@@ -93,6 +104,7 @@ export default function RootLayout({
         />
         <BackendWarmup />
         {children}
+        <FloatingChatWidget />
       </body>
     </html>
   );

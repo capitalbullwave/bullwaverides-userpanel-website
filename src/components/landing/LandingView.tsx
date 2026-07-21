@@ -8,7 +8,7 @@ import {
   MapPin,
   Navigation2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DownloadAppMenu } from "@/components/landing/DownloadAppMenu";
 import { ServiceImage } from "@/components/home/ServiceImage";
@@ -16,6 +16,12 @@ import { buildLocationSearchUrl, isLandingBookingTab } from "@/lib/location-sear
 import type { LocationFieldType } from "@/lib/location-search";
 import { buildBookUrl } from "@/lib/ride-booking";
 import { getProtectedPath } from "@/lib/auth-session";
+import { getVehicleCategories } from "@/lib/home-api";
+import {
+  displayVehicleName,
+  vehicleImageForCategory,
+  vehicleImageForSlug,
+} from "@/lib/vehicle-map";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { AnimateIn, Stagger, StaggerItem } from "@/components/motion";
 import { WaveGoLogo } from "@/components/layout/WaveGoLogo";
@@ -30,6 +36,7 @@ import {
   landingHeroSlides,
   landingServices,
   type LandingBookingTab,
+  type ServiceItem,
 } from "@/constants/services";
 
 function getDropoffLocationCopy(tab: LandingBookingTab) {
@@ -60,6 +67,7 @@ export function LandingView() {
   const [activeTab, setActiveTab] = useState<LandingBookingTab>("rides");
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
+  const [adminImages, setAdminImages] = useState<Record<string, string>>({});
 
   const dropoffCopy = getDropoffLocationCopy(activeTab);
 
@@ -73,16 +81,85 @@ export function LandingView() {
     if (isLandingBookingTab(urlTab)) setActiveTab(urlTab);
   }, [searchParams]);
 
-  const openLocationSearch = (field: LocationFieldType) => {
-    router.push(
-      buildLocationSearchUrl({
-        field,
-        returnTo: ROUTES.landing,
-        pickup,
-        dropoff,
-        tab: activeTab,
+  useEffect(() => {
+    let cancelled = false;
+    void getVehicleCategories("ride")
+      .then((categories) => {
+        if (cancelled) return;
+        const map: Record<string, string> = {};
+        for (const category of categories) {
+          const src = vehicleImageForCategory(category);
+          const slug = category.slug.toLowerCase();
+          map[slug] = src;
+          const vehicleKey = displayVehicleName(category.name, category.slug).toLowerCase();
+          map[vehicleKey] = src;
+          if (slug.includes("bike")) map.bike = src;
+          if (slug.includes("auto") || slug.includes("rickshaw")) {
+            map.auto = src;
+            map["electric auto"] = src;
+          }
+          if (slug.includes("cab") || slug === "economy" || slug === "premium") {
+            map.cab = src;
+          }
+        }
+        setAdminImages(map);
       })
-    );
+      .catch(() => {
+        // Keep static service art if admin icons fail.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const services = useMemo<ServiceItem[]>(() => {
+    return landingServices.map((service) => {
+      const key = service.name.toLowerCase();
+      const slugHint =
+        key.includes("bike")
+          ? "bike"
+          : key.includes("auto")
+            ? "auto"
+            : key.includes("cab")
+              ? "cab"
+              : key.includes("parcel")
+                ? "parcel"
+                : key.includes("travel")
+                  ? "travel"
+                  : key.includes("ambulance")
+                    ? "ambulance"
+                    : key;
+      // Electric Auto always uses the white local service art (not admin Auto/E-Rickshaw).
+      const useLocalElectricAuto = key.includes("electric") && key.includes("auto");
+      const fromAdmin = useLocalElectricAuto
+        ? null
+        : adminImages[key] || adminImages[slugHint];
+      return {
+        ...service,
+        name: displayVehicleName(service.name),
+        image: fromAdmin || service.image || vehicleImageForSlug(slugHint),
+      };
+    });
+  }, [adminImages]);
+
+  const tripCoords = {
+    pickupLat: Number(searchParams.get("plat")) || undefined,
+    pickupLng: Number(searchParams.get("plng")) || undefined,
+    dropoffLat: Number(searchParams.get("dlat")) || undefined,
+    dropoffLng: Number(searchParams.get("dlng")) || undefined,
+  };
+
+  const openLocationSearch = (field: LocationFieldType) => {
+    // Location pick + See prices are public; login is only required on Book.
+    const locationUrl = buildLocationSearchUrl({
+      field,
+      returnTo: ROUTES.landing,
+      pickup,
+      dropoff,
+      tab: activeTab,
+      coords: tripCoords,
+    });
+    router.push(locationUrl);
   };
 
   const handleBook = (e: React.FormEvent) => {
@@ -95,7 +172,14 @@ export function LandingView() {
       openLocationSearch(!pickup ? "pickup" : "dropoff");
       return;
     }
-    router.push(buildBookUrl(pickup, dropoff, activeTab));
+    router.push(
+      buildBookUrl(pickup, dropoff, activeTab, undefined, {
+        pickupLat: tripCoords.pickupLat,
+        pickupLng: tripCoords.pickupLng,
+        dropoffLat: tripCoords.dropoffLat,
+        dropoffLng: tripCoords.dropoffLng,
+      })
+    );
   };
 
   const ctaLabel =
@@ -113,7 +197,7 @@ export function LandingView() {
       <section className="relative bg-background">
         <div className="pointer-events-none absolute inset-0 overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-secondary/15 via-background to-background" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:items-center md:gap-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-14 lg:py-20">
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-6 pb-14 pt-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:items-center md:gap-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-14 lg:pb-20 lg:pt-3">
           <AnimateIn className="relative z-10 max-w-xl">
             <h1 className="font-heading text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem]">
               Go anywhere.
@@ -225,8 +309,14 @@ export function LandingView() {
           </div>
 
           <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {landingServices.map((service, index) => {
+            {services.map((service, index) => {
               const isAmbulance = service.name === "Ambulance";
+              const key = service.name.toLowerCase();
+              // Parcel / Travel / Ambulance art has more canvas padding — zoom to match Bike/Auto/Cab.
+              const isIconService =
+                key.includes("parcel") ||
+                key.includes("travel") ||
+                key.includes("ambulance");
               return (
                 <StaggerItem key={service.name} index={index}>
                 <button
@@ -259,7 +349,12 @@ export function LandingView() {
                     <ServiceImage
                       src={service.image}
                       alt={service.name}
-                      imageClassName="scale-[1.7] p-0"
+                      fallbackSrc={vehicleImageForSlug(service.name)}
+                      imageClassName={
+                        isIconService
+                          ? "object-contain p-0 scale-[1.85]"
+                          : "object-contain p-1 scale-110"
+                      }
                     />
                   </div>
                 </button>

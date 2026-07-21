@@ -16,11 +16,18 @@ const PUBLIC_PATHS = new Set<string>([
   ROUTES.terms,
   ROUTES.privacy,
   ROUTES.legalSafety,
+  // Guest fare browse: pickup/drop → see prices → vehicle list (login only on Book)
+  ROUTES.location,
+  ROUTES.book,
   "/robots.txt",
   "/sitemap.xml",
   "/opengraph-image",
   "/twitter-image",
   "/icon",
+  "/apple-icon",
+  "/apple-touch-icon.png",
+  "/icon-192.png",
+  "/icon-512.png",
 ]);
 
 /** Nested public sections (blog articles, legal pages, safety sub-pages). */
@@ -59,7 +66,9 @@ export function middleware(request: NextRequest) {
 
   if (!isAuthenticated) {
     const loginUrl = new URL(ROUTES.login, request.url);
-    loginUrl.searchParams.set("redirect", pathname);
+    const returnTo = `${pathname}${request.nextUrl.search}`;
+    loginUrl.searchParams.set("redirect", returnTo);
+    loginUrl.searchParams.set("next", returnTo);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -72,6 +81,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|opengraph-image|twitter-image|icon|images|api|uploads|.*\\.(?:svg|png|jpg|jpeg|gif|webp|apk)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|apple-icon|apple-touch-icon.png|icon-192.png|icon-512.png|robots.txt|sitemap.xml|opengraph-image|twitter-image|icon|images|api|uploads|.*\\.(?:svg|png|jpg|jpeg|gif|webp|apk)$).*)",
   ],
 };

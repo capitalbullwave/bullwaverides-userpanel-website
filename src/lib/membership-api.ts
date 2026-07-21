@@ -28,35 +28,8 @@ export function submitStudentPass(payload: {
   });
 }
 
-export interface MembershipPlan {
-  id: string;
-  slug: string;
-  name: string;
-  price_inr: number;
-  ride_discount_percent: number;
-  benefits: string[];
-  is_popular?: boolean;
-}
-
-function normalizeMembershipPlan(raw: Record<string, unknown>): MembershipPlan {
-  return {
-    id: String(raw.id ?? raw.slug ?? ""),
-    slug: String(raw.slug ?? ""),
-    name: String(raw.name ?? ""),
-    price_inr: Number(raw.price_inr ?? raw.price ?? 0),
-    ride_discount_percent: Number(raw.ride_discount_percent ?? 0),
-    benefits: Array.isArray(raw.benefits)
-      ? raw.benefits.filter((b): b is string => typeof b === "string")
-      : [],
-    is_popular: raw.is_popular === true,
-  };
-}
-
-export async function listSubscriptionPlans() {
-  const res = await authFetch<{ plans: Array<Record<string, unknown>> }>(
-    "/subscription-plans"
-  );
-  return { plans: res.plans.map(normalizeMembershipPlan) };
+export function listSubscriptionPlans() {
+  return authFetch<{ plans: Array<Record<string, unknown>> }>("/subscription-plans");
 }
 
 export function getUserSubscription() {
