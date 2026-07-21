@@ -19,6 +19,10 @@ const PUBLIC_PATHS = new Set<string>([
   // Guest fare browse: pickup/drop → see prices → vehicle list (login only on Book)
   ROUTES.location,
   ROUTES.book,
+  // Corporate / Business (company auth is separate from rider login)
+  ROUTES.corporateRegister,
+  ROUTES.corporateLogin,
+  ROUTES.corporatePortal,
   "/robots.txt",
   "/sitemap.xml",
   "/opengraph-image",
@@ -35,6 +39,7 @@ const PUBLIC_PREFIXES = [
   `${ROUTES.blogs}/`,
   `${ROUTES.safety}/`,
   "/legal/",
+  "/corporate/",
 ] as const;
 
 function isPublicPath(pathname: string) {
